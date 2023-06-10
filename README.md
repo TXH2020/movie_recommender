@@ -27,3 +27,4 @@ Here mysecretpassword is the password found in prs_project settings. If you want
 - `python data_loader.py`. This took 9min on a Linux VM with 4Gb RAM 2cpus.
 - `python manage.py runserver` 
  
+https://drive.google.com/file/d/1VIWW2uz4IRibpWl7VXwrd7g8QCdHXMeK/view?usp=drivesdk
