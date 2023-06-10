@@ -45,7 +45,7 @@ class RecommenderCoverage(object):
 
         for user in list(self.all_users):
             user_id = user
-            recset = self.recommender.recommend_items(int(user_id), num=K)
+            recset = (self.recommender).recommend_items(user_id=int(user_id), num=K)
             self.users_with_recs[user] = recset
             inx = 1
             if recset:
@@ -128,7 +128,7 @@ if __name__ == '__main__':
     cov = None
     if args.fwls:
         logger.debug("evaluating coverage of fwls")
-        cov = RecommenderCoverage(FeatureWeightedLinearStacking)
+        cov = RecommenderCoverage(FeatureWeightedLinearStacking())
         cov.calculate_coverage(K=k, recName='fwls{}'.format(k))
 
     if args.cf:
