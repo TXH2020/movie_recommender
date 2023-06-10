@@ -33,4 +33,4 @@ urllib3
 pyLDAvis
 psycopg2-binary
 gdown>=4.7.1
-
+nltk

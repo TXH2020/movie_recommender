@@ -1,6 +1,12 @@
 import os
+import sys
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
+# add your project directory to the sys.path
+project_home = os.getcwd()
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+os.chdir(project_home)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 
 import django
 
@@ -12,7 +18,7 @@ import logging
 import pandas as pd
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
-
+from sklearn.preprocessing import StandardScaler
 from analytics.models import Rating
 from builder.item_similarity_calculator import ItemSimilarityMatrixBuilder
 from builder.lda_model_calculator import LdaModel
@@ -101,10 +107,9 @@ class FWLSCalculator(object):
             LdaModel.build()
 
         regr = linear_model.LinearRegression(fit_intercept=True,
-                                             n_jobs=-1,
-                                             normalize=True)
+                                             n_jobs=-1)
 
-        regr.fit(self.train_data[['cb1', 'cb2', 'cf1', 'cf2']], self.train_data['rating'])
+        regr.fit(StandardScaler().fit_transform(self.train_data[['cb1', 'cb2', 'cf1', 'cf2']]), self.train_data['rating'])
         self.logger.info(regr.coef_)
 
         result = {'cb1': regr.coef_[0],
@@ -113,7 +118,10 @@ class FWLSCalculator(object):
                   'cf2': regr.coef_[3],
                   'intercept': regr.intercept_}
         self.logger.debug(result)
-        self.logger.debug(self.train_data.iloc[100])
+        try:
+            self.logger.debug(self.train_data.iloc[100])
+        except:
+            self.logger.debug(self.train_data.iloc[1])
         ensure_dir(self.save_path)
         with open(self.save_path + 'fwls_parameters.data', 'wb') as ub_file:
             pickle.dump(result, ub_file)

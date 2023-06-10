@@ -1,5 +1,13 @@
 import unittest
+import os
+import sys
 
+# add your project directory to the sys.path
+project_home = os.getcwd()
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+os.chdir(project_home)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 from evaluator.evaluation_runner import EvaluationRunner
 from recs.funksvd_recommender import FunkSVDRecs
 
@@ -42,3 +50,6 @@ class FunkSvdTest(unittest.TestCase):
     def compare_recs(self, recs1, recs2):
         for i, rec in enumerate(recs1):
             self.assertEqual(rec[0], recs2[i][0])
+
+if __name__ == '__main__':
+    unittest.main()

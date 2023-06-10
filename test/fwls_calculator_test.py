@@ -1,5 +1,13 @@
 import unittest
+import os
+import sys
 
+# add your project directory to the sys.path
+project_home = os.getcwd()
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+os.chdir(project_home)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 import numpy as np
 import pandas as pd
 
@@ -51,3 +59,6 @@ class TestFWLS(unittest.TestCase):
         assert(rec.wcb2 == parameters['cb2'])
         assert(rec.wcf1 == parameters['cf1'])
         assert(rec.wcf2 == parameters['cf2'])
+
+if __name__ == '__main__':
+    unittest.main()

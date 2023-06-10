@@ -1,7 +1,15 @@
 import decimal
 import pandas as pd
 import unittest
+import os
+import sys
 
+# add your project directory to the sys.path
+project_home = os.getcwd()
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+os.chdir(project_home)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 from evaluator.evaluation_runner import EvaluationRunner
 from builder.item_similarity_calculator import ItemSimilarityMatrixBuilder
 from recs.neighborhood_based_recommender import NeighborhoodBasedRecs
@@ -103,13 +111,13 @@ class TestEvaluationRunner(unittest.TestCase):
              [10, DR_STRANGELOVE, 8, '2016-10-12 23:20:27+00:00'],
 
              ], columns=['user_id', 'movie_id', 'rating', 'rating_timestamp'])
-        ratings['rating'] = ratings['rating'].astype(decimal.Decimal)
+        ratings['rating'] = ratings['rating'].astype(object)
         result = er.calculate_using_ratings(ratings, min_number_of_ratings=4, min_rank=5)
 
         # figure out what to do with result ;)
         self.assertLess(result['mae'], decimal.Decimal(1.7))
-        self.assertLess(result['pak'], decimal.Decimal(0.7))
-        self.assertLess(result['rak'], decimal.Decimal(0.7))
+        self.assertLess(result['ar'], decimal.Decimal(0.7))
+        self.assertLess(result['map'], decimal.Decimal(0.7))
         print(result)
 
     def test_split_data(self):
@@ -143,3 +151,6 @@ class TestEvaluationRunner(unittest.TestCase):
         self.assertTrue(test is not None)
         self.assertTrue(test.shape[0], 4)
         self.assertEqual(train.shape[0], 16)
+
+if __name__ == '__main__':
+    unittest.main()

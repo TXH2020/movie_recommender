@@ -1,4 +1,3 @@
-import os
 import argparse
 from decimal import Decimal
 
@@ -7,7 +6,15 @@ import numpy as np
 from numpy import random
 import pandas as pd
 from django.db.models import Count
+import os
+import sys
 
+# add your project directory to the sys.path
+project_home = os.getcwd()
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+os.chdir(project_home)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 from sklearn.model_selection import KFold
 
 from builder.bpr_calculator import BayesianPersonalizationRanking
@@ -22,7 +29,7 @@ from recs.fwls_recommender import FeatureWeightedLinearStacking
 from recs.neighborhood_based_recommender import NeighborhoodBasedRecs
 from recs.popularity_recommender import PopularityBasedRecs
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
+
 import django
 import time
 
@@ -156,7 +163,6 @@ class EvaluationRunner(object):
             results = {'map': maps / self.folds,
                        'ar': ars / self.folds,
                        'mae': maes / self.folds}
-
         self.logger.info(results)
         return results
 
@@ -168,16 +174,15 @@ class EvaluationRunner(object):
     def split_data(min_rank, ratings, test_users, train_users):
 
         train = ratings[ratings['user_id'].isin(train_users)]
-
+        
         test_temp = ratings[ratings['user_id'].isin(test_users)].sort_values('rating_timestamp',
                                                                              ascending=False)
-
+        
         test = test_temp.groupby('user_id').head(min_rank)
-
+        
         additional_training_data = test_temp[~test_temp.index.isin(test.index)]
-
-        train = train.append(additional_training_data)
-
+        
+        train = pd.concat([train,additional_training_data])
         return test, train
 
 def evaluate_pop_recommender():
