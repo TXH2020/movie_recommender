@@ -82,7 +82,6 @@ class PrecisionAtK(object):
 
         total_precision_score = Decimal(0.0)
         total_recall_score = Decimal(0.0)
-
         apks = []
         arks = []
         user_id_count = 0
@@ -92,9 +91,7 @@ class PrecisionAtK(object):
             training_data_for_user = train_ratings[train_ratings['user_id'] == user_id][:20]
 
             dict_for_rec = training_data_for_user.to_dict(orient='records')
-
             relevant_ratings = list(users_test_data['movie_id'])
-
             if len(dict_for_rec) > 0:
                 recs = list(self.rec.recommend_items_by_ratings(user_id,
                                                                 dict_for_rec,

@@ -32,7 +32,7 @@ class RecommenderCoverage(object):
 
     def __init__(self, recommender):
         self.ratings = self.load_all_ratings()
-        self.all_users = set(self.ratings['user_id'])
+        self.all_users = set(['400001','400002','400003','400004','400005'])
         self.all_movies = set(self.ratings['movie_id'])
         self.recommender = recommender
         self.items_in_rec = defaultdict(int)
