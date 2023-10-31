@@ -5,6 +5,7 @@ Requirements:
 - Docker
 - Python3(>=3.8)
 - git
+- Create an account on the movies database. Obtain an api key. Then paste the key inside "" in the .prs file of this repository after it is cloned.
 
 ## Project Setup
 Steps to set up the project:
