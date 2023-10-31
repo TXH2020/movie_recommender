@@ -7,6 +7,16 @@ Requirements:
 - git
 - Create an account on the movies database. Obtain an api key. Then paste the key inside "" in the .prs file of this repository after it is cloned.
 
+This is based on Kim Falk's movie recommender system. However, a negative point of that system is that for a demonstration of the entire system, one has to spend several hours setting up the project by following all the instructions in Kim Falk's movie recommender book. This is mostly because of:
+- inserting data record by record into the database
+- tons of calculations to be performed.
+
+This implementation overcomes these issues by providing a full fledged system for demonstration with
+- all calculations and tests(tests not fully performed) already made.
+- replacing insert with copy which is significantly faster than insert.
+
+Hours of work to complete the installation of movie geek is reduced to a matter of 26 min on a Linux VM with 4Gb RAM 2cpus. Hence it is even faster on more powerful machines.
+
 ## Project Setup
 Steps to set up the project:
 - create a python virtual environment(using python -m venv or virtualenv) 
