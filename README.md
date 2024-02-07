@@ -12,7 +12,7 @@ This is based on Kim Falk's movie recommender system. However, a negative point 
 - tons of calculations to be performed.
 
 This implementation overcomes these issues by providing a full fledged system for demonstration with
-- all calculations and tests(tests not fully performed) already made.
+- all calculations and tests(evaluator tests not fully performed) already made. Note that the current lda_similarity csv file is 327MB. If all the similarities are loaded (72404945 vs 743178), the size would be nearly 3GB which is too much for practical purposes.
 - replacing insert with copy which is significantly faster than insert.
 
 Hours of work to complete the installation of movie geek is reduced to a matter of 26 min on a Linux VM with 4Gb RAM 2cpus. Hence it is even faster on more powerful machines.
