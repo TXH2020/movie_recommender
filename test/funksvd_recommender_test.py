@@ -1,17 +1,9 @@
 import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 
 from builder.matrix_factorization_calculator import MatrixFactorization
 from recs.funksvd_recommender import FunkSVDRecs
 
-
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 
@@ -117,7 +109,7 @@ class TestNeighborhoodBasedRecs(unittest.TestCase):
 
              ], columns=['user_id', 'movie_id', 'rating', 'rating_timestamp'])
 
-        self.save_path = './test/model/'
+        self.save_path = './test/'
         self.k=3
         MF = MatrixFactorization(save_path=self.save_path)
         MF.train(self.ratings, k=self.k)

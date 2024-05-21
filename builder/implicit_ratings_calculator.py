@@ -1,13 +1,7 @@
 import os
 
-import sys
 
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 from django.db.models import Count
@@ -107,15 +101,14 @@ def calculate_implicit_ratings_for_user(user_id):
     return ratings
 
 
-def save_ratings(ratings, user_id, type,c):
+def save_ratings(ratings, user_id, type):
 
     print("saving ratings for {}".format(user_id))
     i = 0
-    
+
     for content_id, rating in ratings.items():
         if rating > 0:
             Rating(
-                id=c,
                 user_id=user_id,
                 movie_id=str(content_id),
                 rating=rating,
@@ -125,28 +118,27 @@ def save_ratings(ratings, user_id, type,c):
             print ('{} {}'.format(user_id, str(content_id)))
 
         i += 1
-        c+=1
+
         if i == 100:
             print('.', end="")
             i = 0
 
 
 def calculate_ratings_with_timedecay():
-    c=921399
+
     for user in query_log_for_users():
         userid = user['user_id']
         ratings = calculate_implicit_ratings_w_timedecay(userid)
-        save_ratings(ratings, userid, 'implicit_w',c)
-        c+=100
+        save_ratings(ratings, userid, 'implicit_w')
+
 
 def calculate_ratings():
-    c=921399
+
     rows = query_log_for_users()
     for user in rows:
         userid = user['user_id']
         ratings = calculate_implicit_ratings_for_user(userid)
-        save_ratings(ratings, userid, 'implicit',c)
-        c+=100
+        save_ratings(ratings, userid, 'implicit')
 
 
 if __name__ == '__main__':

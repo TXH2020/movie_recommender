@@ -1,52 +1,47 @@
-
-
+import os
+import pickle
 import django
 import json
 import requests
 import time
 
-import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'prs_project.settings')
 
 django.setup()
 
 from recommender.models import MovieDescriptions
 NUMBER_OF_PAGES = 15760
 start_date = "1970-01-01"
-
+with open('movname.pkl','rb') as f:
+	movnames=pickle.load(f)
 
 def get_descriptions():
 
-    url = """https://api.themoviedb.org/3/discover/movie?primary_release_date.gte={}&api_key={}&page={}"""
+    url = """https://api.themoviedb.org/3/search/movie?query={}&api_key={}"""
     api_key = get_api_key()
 
-    #MovieDescriptions.objects.all().delete()
+    MovieDescriptions.objects.all().delete()
 
-    for page in range(1, NUMBER_OF_PAGES):
-        formated_url = url.format(start_date, api_key, page)
+    for movname in movnames:
+        formated_url = url.format(movname, api_key)
         print(formated_url)
         r = requests.get(formated_url)
-        for film in r.json()['results']:
+        try:
+            film = r.json()['results'][0]
             id = film['id']
             md = MovieDescriptions.objects.get_or_create(movie_id=id)[0]
-
             md.imdb_id = get_imdb_id(id)
             md.title = film['title']
             md.description = film['overview']
             md.genres = film['genre_ids']
             if None != md.imdb_id:
                 md.save()
+            print(film)
+        except Exception as e:
+            print(e)
+        time.sleep(0.5)
 
-        time.sleep(1)
-
-        print("{}: {}".format(page, r.json()))
+        #print("{}: {}".format(movname, r.json()))
 
 
 def save_as_csv():

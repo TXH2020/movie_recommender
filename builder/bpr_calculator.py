@@ -1,14 +1,8 @@
 import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
-
 import logging
+
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 import django
 django.setup()
 
@@ -221,7 +215,7 @@ if __name__ == '__main__':
     logger = logging.getLogger('BPR calculator')
 
     train_data = load_all_ratings(1)
-    bpr = BayesianPersonalizationRanking(save_path='./models/bpr/{}'.format(datetime.now()))
+    bpr = BayesianPersonalizationRanking(save_path='./models/bpr/{}/'.format(datetime.now()))
     bpr.train(train_data, 10, 20)
 
 

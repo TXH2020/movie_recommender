@@ -1,14 +1,8 @@
 import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 
 from builder.matrix_factorization_calculator import MatrixFactorization
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 
@@ -112,7 +106,7 @@ class TestMatrixFactorizationCalculator(unittest.TestCase):
              ['10', DR_STRANGELOVE, 8, '2016-10-12 23:20:27+00:00'],
 
              ], columns=['user_id', 'movie_id', 'rating', 'rating_timestamp'])
-        self.ratings['rating'] = self.ratings['rating'].astype(object)
+        self.ratings['rating'] = self.ratings['rating'].astype(Decimal)
         print(self.ratings)
 
     def test_simple_factorization(self):
@@ -154,7 +148,7 @@ class TestMatrixFactorizationCalculator(unittest.TestCase):
              ['5', "MM", Decimal(4), '2015-08-12 23:20:27+00:00'],
              ['5', "MM2", Decimal(5), '2015-10-12 22:20:27+00:00'],
              ], columns=['user_id', 'movie_id', 'rating', 'rating_timestamp'])
-        ratings['rating'] = ratings['rating'].astype(object)
+        ratings['rating'] = ratings['rating'].astype(Decimal)
 
         save_path = './test/small_model/'
         k = 2
@@ -185,6 +179,5 @@ class TestMatrixFactorizationCalculator(unittest.TestCase):
         print("SW3 {} vs. MM2 {}".format(r_sw3, r_mm2))
         self.assertGreater(r_sw3, r_mm2)
 
-if __name__ == '__main__':
-    unittest.main()
+
 

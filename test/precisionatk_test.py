@@ -1,13 +1,5 @@
 import decimal
-import os
-import sys
 
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 from evaluator.algorithm_evaluator import PrecisionAtK
 
 import unittest
@@ -105,5 +97,3 @@ class TestPrecisionAtK(unittest.TestCase):
         result = pak.average_precision_k(recs, actual)
         self.assertAlmostEqual(result, decimal.Decimal(11/18))
 
-if __name__ == '__main__':
-    unittest.main()

@@ -1,5 +1,7 @@
 import logging
+import os
 import random
+import sys
 import pickle
 
 import numpy as np
@@ -9,15 +11,7 @@ from collections import defaultdict
 import math
 from datetime import datetime
 
-import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 
@@ -277,9 +271,9 @@ class MatrixFactorization(object):
         item_bias = {iid: self.item_bias[self.i_inx[iid]] for iid in self.i_inx.keys()}
 
         uf = pd.DataFrame(self.user_factors,
-                          index=list(self.user_ids))
+                          index=self.user_ids)
         it_f = pd.DataFrame(self.item_factors,
-                            index=list(self.movie_ids))
+                            index=self.movie_ids)
 
         with open(save_path + 'user_factors.json', 'w') as outfile:
             outfile.write(uf.to_json())
@@ -325,7 +319,7 @@ if __name__ == '__main__':
     logger = logging.getLogger('funkSVD')
     logger.info("[BEGIN] Calculating matrix factorization")
 
-    MF = MatrixFactorization(save_path='./models/funkSVD/{}'.format(datetime.now()), max_iterations=40)
+    MF = MatrixFactorization(save_path='./models/funkSVD/{}/'.format(datetime.now()), max_iterations=40)
     loaded_ratings = load_all_ratings(20)
     logger.info("using {} ratings".format(loaded_ratings.shape[0]))
     #MF.meta_parameter_train(loaded_ratings)

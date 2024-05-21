@@ -1,18 +1,10 @@
+import os
 import sqlite3
-import tqdm
+from tqdm import tqdm
 import psycopg2
 from scipy.sparse import coo_matrix
 
-import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-        sys.path.insert(0, project_home)
-        os.chdir(project_home)
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
-
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 import django
 from datetime import datetime
 
@@ -30,7 +22,6 @@ import math
 from nltk.tokenize import RegexpTokenizer
 from stop_words import get_stop_words
 from gensim import corpora, models, similarities
-from gensim.test.utils import get_tmpfile
 
 django.setup()
 
@@ -100,7 +91,7 @@ class LdaModel(object):
 
         texts = []
         tokenizer = RegexpTokenizer(r'\w+')
-        for d in tqdm.tqdm(data):
+        for d in tqdm(data):
             raw = d.lower()
 
             tokens = tokenizer.tokenize(raw)
@@ -120,8 +111,7 @@ class LdaModel(object):
         lda_model = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary,
                                                  num_topics=n_topics)
 
-        index_tmpfile = get_tmpfile("index")
-        index = similarities.Similarity(index_tmpfile ,corpus,num_features=len(dictionary))
+        index = similarities.MatrixSimilarity(corpus)
 
         self.save_lda_model(lda_model, corpus, dictionary, index)
         self.save_similarities(index, docs)
@@ -163,11 +153,12 @@ class LdaModel(object):
 
         print(f'instantiation of coo_matrix in {datetime.now() - start_time} seconds')
 
-        conn= self.get_conn()
+        conn= sqlite3.connect('db.sqlite3')
         cur = conn.cursor()
 
-        cur.execute('truncate table lda_similarity')
-
+        cur.execute('delete from lda_similarity')
+        conn.commit()
+        conn.close()
         print(f'{coo.count_nonzero()} similarities to save')
         xs, ys = coo.nonzero()
         for x, y in zip(xs, ys):
@@ -181,7 +172,7 @@ class LdaModel(object):
             if sim < self.min_sim:
                 continue
 
-            LdaSimilarity(created, x_id, y_id, sim).save()
+            LdaSimilarity(created=created, source=x_id, target=y_id, similarity=sim).save()
             no_saved += 1
 
         print('{} Similarity items saved, done in {} seconds'.format(no_saved, datetime.now() - start_time))
@@ -236,8 +227,7 @@ class LdaModel(object):
             dbUsername = settings.DATABASES['default']['USER']
             dbPassword = settings.DATABASES['default']['PASSWORD']
             dbName = settings.DATABASES['default']['NAME']
-            host='localhost'
-            conn_str = "host={} dbname={} user={} password={}".format(host,dbName,
+            conn_str = "dbname={} user={} password={}".format(dbName,
                                                               dbUsername,
                                                               dbPassword)
             conn = psycopg2.connect(conn_str)

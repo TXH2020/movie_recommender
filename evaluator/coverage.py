@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import argparse
@@ -6,15 +7,7 @@ from decimal import Decimal
 from collections import defaultdict
 import pandas as pd
 
-import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 
@@ -32,7 +25,7 @@ class RecommenderCoverage(object):
 
     def __init__(self, recommender):
         self.ratings = self.load_all_ratings()
-        self.all_users = set(['400001','400002','400003','400004','400005'])
+        self.all_users = set(self.ratings['user_id'])
         self.all_movies = set(self.ratings['movie_id'])
         self.recommender = recommender
         self.items_in_rec = defaultdict(int)
@@ -45,7 +38,7 @@ class RecommenderCoverage(object):
 
         for user in list(self.all_users):
             user_id = user
-            recset = (self.recommender).recommend_items(user_id=int(user_id), num=K)
+            recset = self.recommender.recommend_items(int(user_id), num=K)
             self.users_with_recs[user] = recset
             inx = 1
             if recset:
@@ -128,7 +121,7 @@ if __name__ == '__main__':
     cov = None
     if args.fwls:
         logger.debug("evaluating coverage of fwls")
-        cov = RecommenderCoverage(FeatureWeightedLinearStacking())
+        cov = RecommenderCoverage(FeatureWeightedLinearStacking)
         cov.calculate_coverage(K=k, recName='fwls{}'.format(k))
 
     if args.cf:

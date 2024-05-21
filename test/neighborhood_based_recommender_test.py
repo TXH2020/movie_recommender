@@ -1,12 +1,6 @@
 import os
-import sys
 
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 
@@ -24,11 +18,11 @@ STAR_WARS = 'star wars'
 WONDER_WOMAN = 'wonder woman'
 AVENGERS = 'avengers'
 WOLVERINE = 'logan'
-PIRATES_OF = 'pirates'
-HARRY = 'harry potter'
-CAPTAIN_AMERICA = 'captain us'
+PIRATES_OF = 'pirates of the caribbien'
+HARRY = 'harry potter I'
+CAPTAIN_AMERICA = 'captain america'
 ALIEN = 'alien'
-DR_STRANGELOVE = 'doctor str'
+DR_STRANGELOVE = 'doctor strangelove'
 JACQUES = 'jacques'
 
 
@@ -135,5 +129,4 @@ class TestNeighborhoodBasedRecs(unittest.TestCase):
                                                        {'movie_id': CAPTAIN_AMERICA, 'rating': 6}])
         self.assertIsNotNone(recs)
 
-if __name__ == '__main__':
-    unittest.main()
+

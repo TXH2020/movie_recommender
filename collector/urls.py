@@ -1,8 +1,8 @@
-from django.urls import re_path
+from django.conf.urls import url
 from collector import views
 
 urlpatterns = [
-    re_path(r'^log/$', views.log, name='log'),
+    url(r'^log/$', views.log, name='log'),
 ]
 
 

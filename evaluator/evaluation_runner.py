@@ -1,3 +1,4 @@
+import os
 import argparse
 from decimal import Decimal
 
@@ -6,15 +7,7 @@ import numpy as np
 from numpy import random
 import pandas as pd
 from django.db.models import Count
-import os
-import sys
 
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-    sys.path.insert(0, project_home)
-os.chdir(project_home)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
 from sklearn.model_selection import KFold
 
 from builder.bpr_calculator import BayesianPersonalizationRanking
@@ -29,7 +22,7 @@ from recs.fwls_recommender import FeatureWeightedLinearStacking
 from recs.neighborhood_based_recommender import NeighborhoodBasedRecs
 from recs.popularity_recommender import PopularityBasedRecs
 
-
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 import django
 import time
 
@@ -43,14 +36,13 @@ class EvaluationRunner(object):
                  recommender,
                  k=10,
                  params=None,
-                 logger=logging.getLogger('Evaluation runner'),isfunk=False):
+                 logger=logging.getLogger('Evaluation runner')):
         self.folds = folds
         self.builder = builder
         self.recommender = recommender
         self.K = k
         self.params = params
         self.logger = logger
-        self.isfunk = isfunk
 
     def clean_data(self, ratings, min_ratings=5):
         self.logger.debug("cleaning data only to contain users with at least {} ratings".format(min_ratings))
@@ -99,10 +91,12 @@ class EvaluationRunner(object):
         ratings = self.clean_data(all_ratings, min_number_of_ratings)
 
         users = ratings.user_id.unique()
+
         train_data_len = int((len(users) * 70 / 100))
         np.random.seed(42)
         np.random.shuffle(users)
         train_users, test_users = users[:train_data_len], users[train_data_len:]
+
         test_data, train_data = self.split_data(min_rank,
                                                 ratings,
                                                 test_users,
@@ -113,13 +107,7 @@ class EvaluationRunner(object):
 
         if self.builder:
             if self.params:
-                if(self.isfunk):
-                    x=self.params.copy()
-                    x['save_path']='./models/funkSVD/model'
-                    self.builder.build(train_data, x)
-                else:
-                    pass
-                    self.builder.build(train_data, self.params)
+                self.builder.build(train_data, self.params)
                 self.logger.debug('setting save_path {}'.format(self.params['save_path']))
                 self.recommender.set_save_path(self.params['save_path'])
             else:
@@ -168,6 +156,7 @@ class EvaluationRunner(object):
             results = {'map': maps / self.folds,
                        'ar': ars / self.folds,
                        'mae': maes / self.folds}
+
         self.logger.info(results)
         return results
 
@@ -179,15 +168,16 @@ class EvaluationRunner(object):
     def split_data(min_rank, ratings, test_users, train_users):
 
         train = ratings[ratings['user_id'].isin(train_users)]
-        
+
         test_temp = ratings[ratings['user_id'].isin(test_users)].sort_values('rating_timestamp',
                                                                              ascending=False)
-        
+
         test = test_temp.groupby('user_id').head(min_rank)
-        
+
         additional_training_data = test_temp[~test_temp.index.isin(test.index)]
-        
-        train = pd.concat([train,additional_training_data])
+
+        train = train.append(additional_training_data)
+
         return test, train
 
 def evaluate_pop_recommender():
@@ -205,7 +195,7 @@ def evaluate_pop_recommender():
 
         builder = None
 
-        for k in np.arange(0, 20, 20):
+        for k in np.arange(0, 20, 2):
             recommender = PopularityBasedRecs()
             er = EvaluationRunner(0,
                                   builder,
@@ -238,7 +228,7 @@ def evaluate_cf_recommender():
     with open(file_name, 'a', 1) as logfile:
         logfile.write("ar, map, mae, min_overlap, min_sim, K, min_num_of_ratings, min_rank\n")
 
-        for k in np.arange(0, 20, 20):
+        for k in np.arange(0, 20, 2):
             min_rank = min_number_of_ratings / 2
             recommender = NeighborhoodBasedRecs()
             er = EvaluationRunner(0,
@@ -269,7 +259,7 @@ def evaluate_cb_recommender():
     with open(file_name, 'a', 1) as logfile:
         logfile.write("ar, map, mae, k, min_sim, min_num_of_ratings, min_rank\n")
 
-        for k in np.arange(5, 20, 15):
+        for k in np.arange(5, 20, 3):
             recommender = ContentBasedRecs()
 
             er = EvaluationRunner(0,
@@ -305,7 +295,7 @@ def evaluate_fwls_recommender():
 
         builder = FWLSCalculator(min_overlap, save_path)
 
-        for data_sample in np.arange(500, 5000, 1500):
+        for data_sample in np.arange(500, 5000, 200):
 
             min_rank = min_number_of_ratings / 2
             recommender = FeatureWeightedLinearStacking()
@@ -341,16 +331,16 @@ def evaluate_funksvd_recommender():
 
         builder = MatrixFactorization(save_path)
 
-        for k in np.arange(0, 20, 20):
+        for k in np.arange(0, 20, 2):
 
-            recommender = FunkSVDRecs(save_path + 'model/model')
+            recommender = FunkSVDRecs(save_path + 'model/')
 
             er = EvaluationRunner(0,
                                   builder,
                                   recommender,
                                   k,
                                   params={'k': 20,
-                                          'save_path': save_path + 'model/model/'},isfunk=True)
+                                          'save_path': save_path + 'model/'})
 
             result = er.calculate(20, 10)
             builder = None
@@ -367,7 +357,7 @@ def evaluate_bpr_recommender():
     number_of_factors = 30
     number_of_iterations = 5
     N = 10
-    save_path = './models/bpr'
+    save_path = './models/bpr/'
 
     timestr = time.strftime("%Y%m%d-%H%M%S")
     file_name = '{}-bpr-k.csv'.format(timestr)
@@ -377,9 +367,9 @@ def evaluate_bpr_recommender():
 
         builder = BayesianPersonalizationRanking(save_path)
 
-        for number_of_factors in np.arange(5, 50, 45):
+        for number_of_factors in np.arange(5, 50, 5):
 
-            recommender = BPRRecs(save_path + '/model/')
+            recommender = BPRRecs(save_path + 'model/')
 
             er = EvaluationRunner(0,
                                   builder,
@@ -387,7 +377,7 @@ def evaluate_bpr_recommender():
                                   N,
                                   params={'k': number_of_factors,
                                           'num_iterations': number_of_iterations,
-                                          'save_path': save_path + '/model/'})
+                                          'save_path': save_path + 'model/'})
 
             result = er.calculate(10, 5)
 

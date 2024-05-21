@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import psycopg2
 import sqlite3
@@ -7,15 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import coo_matrix
 from datetime import datetime
 
-import os
-import sys
-
-# add your project directory to the sys.path
-project_home = os.getcwd()
-if project_home not in sys.path:
-        sys.path.insert(0, project_home)
-        os.chdir(project_home)
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'prs_project.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "prs_project.settings")
 
 import django
 
@@ -144,8 +137,7 @@ class ItemSimilarityMatrixBuilder(object):
             dbUsername = settings.DATABASES['default']['USER']
             dbPassword = settings.DATABASES['default']['PASSWORD']
             dbName = settings.DATABASES['default']['NAME']
-            host = 'localhost'
-            conn_str = "host={} dbname={} user={} password={}".format(host,dbName,
+            conn_str = "dbname={} user={} password={}".format(dbName,
                                                               dbUsername,
                                                               dbPassword)
             conn = psycopg2.connect(conn_str)

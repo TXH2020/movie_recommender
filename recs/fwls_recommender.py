@@ -10,12 +10,12 @@ class FeatureWeightedLinearStacking(base_recommender):
     def __init__(self):
         self.cb = ContentBasedRecs()
         self.cf = NeighborhoodBasedRecs()
-
-        self.wcb1 = Decimal(0.65221204)
-        self.wcb2 = Decimal(-0.14638855)
-        self.wcf1 = Decimal(-0.0062952)
-        self.wcf2 = Decimal(0.09139193)
-        self.intercept = Decimal(0)
+        self.set_save_path('./models/FWLSModel/')
+        #self.wcb1 = Decimal(0.65221204)
+        #self.wcb2 = Decimal(-0.14638855)
+        #self.wcf1 = Decimal(-0.0062952)
+        #self.wcf2 = Decimal(0.09139193)
+        #self.intercept = Decimal(0)
 
     @staticmethod
     def fun1():

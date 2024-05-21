@@ -132,7 +132,7 @@ def lda(request):
 def cluster(request, cluster_id):
 
     members = Cluster.objects.filter(cluster_id=cluster_id)
-    member_ratings = Rating.objects.filter(user_id__in=str(members.values('user_id')))
+    member_ratings = Rating.objects.filter(user_id__in=members.values('user_id'))
     movies = Movie.objects.filter(movie_id__in=member_ratings.values('movie_id'))
 
     ratings = {r.movie_id: r for r in member_ratings}
